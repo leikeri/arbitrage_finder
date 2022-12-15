@@ -1,5 +1,4 @@
-import pytest
-from main import ArbFinder
+from src.main import ArbFinder
 
 rates = dict()
 # first run
