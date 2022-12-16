@@ -57,7 +57,7 @@ class ArbFinder:
     def create_arb_model(self, base_ccy, fx_pairs, profit_cap):
         self.ccys = list()
         for pair, val in fx_pairs.items():
-            print(str(pair) + ': ' + str(val))
+            # print(str(pair) + ': ' + str(val))
             if pair not in self.ccys:  # creating list of CCYs
                 self.ccys.append(pair[:3])
                 self.ccys.append(pair[-3:])
@@ -97,10 +97,14 @@ class ArbFinder:
         """
         self.prob.solve()
         # print(list_solvers(onlyAvailable=True))  # list available solvers
-        print(f"status: {self.prob.status}, {LpStatus[self.prob.status]}")
-        print(f"objective: {self.prob.objective.value()}")
+        print('Results:')
         # print(value(x))
-        for var in self.prob.variables():
-            print(f"{var.name}: {var.value()}")
-
-        print(f"solved using solver {self.prob.solver}")
+        if self.prob.objective.value() > 1:  # check that target returns profits
+            print(f"status: {self.prob.status}, {LpStatus[self.prob.status]}")
+            print(f"objective: {self.prob.objective.value()}")
+            for var in self.prob.variables():
+                if var.value() > 0:
+                    print(f"{var.name}: {var.value()}")
+        else:
+            print('No arbitrage found')
+        print(f"solved using solver {self.prob.solver}\n\n")
