@@ -1,4 +1,4 @@
-from src import utils as u
+import utils as u
 
 
 def func_arb(rates):
