@@ -14,7 +14,7 @@ EURNOK = 10.388
 
 There are no arbitrage opportunities between these prices. However, if one of the prices changes while other pair(s) don't change, there might be an arbitrage opportunity. Let's demonstrate this by changing one of them, Specifically, EURNOK to 10.388 * 1.01 and calculate the cash flows. One could start converting 100,047.53 USD to 94,383.84 EUR, which further may be converted to 990,264 NOK and then finally back to 101,047.5 USD. Trading with these prices has created roughly 1,000 USD profit.
 
-Mathematically, this may be presented as an optimization problem by maximizing a target currency USD, with constraints on the other currencies and maximum profit max_amount:
+Mathematically, this may be presented as an optimization problem by maximizing a target currency USD, with cash flow constraints on all currencies and maximum profit max_amount:
 
 - max USD
  - subject to:
@@ -22,7 +22,9 @@ Mathematically, this may be presented as an optimization problem by maximizing a
     - EURUSD + EURNOK - 1 / EURUSD * USDEUR - 1 / EURNOK * NOKEUR = 0
     - NOKEUR + NOKUSD - 1 / NOKUSD * USDNOK - 1 / NOKEUR * EURNOK = 0
     - USD <= max_amount
-    - Notations to be corrected and explained
+    - Notations to be corrected
+
+Explained here why above...
 
 ## Setup:
 One has to have python installed. The project has been tested on version 3.8. It's recommended to use virtual environments before running the following two steps to clone and run the tests locally:
