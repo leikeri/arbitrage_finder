@@ -1,5 +1,5 @@
 from pulp import *
-
+import time
 
 class ArbFinder:
 
@@ -11,24 +11,24 @@ class ArbFinder:
         self.x = dict()
         for pair, vals in fx_rates.items():
 
-            self.pairs[pair] = vals  # below roundings based on the fx-market conventions
+            self.pairs[pair] = int(vals * 100000) / 100000  # below roundings based on the fx-market conventions
             if pair[0:3] == 'JPY':
                 self.pairs[pair[-3:] + pair[:3]] = round(vals ** -1, 2)
             elif pair[-3:] == 'JPY':
                 self.pairs[pair[-3:] + pair[:3]] = round(vals ** -1, 5)
             else:
-                self.pairs[pair[-3:] + pair[:3]] = int(vals ** -1 * 10000) / 10000  # round(vals ** -1, 4) This is not precise, but replicates the article
+                self.pairs[pair[-3:] + pair[:3]] = int(vals ** -1 * 100000) / 100000  # round(vals ** -1, 4) This is not precise, but replicates the article
 
     def __add__(self, pair):  # allows adding several pairs in a dictionary
         for ccy_key, val in pair.items():
             if ccy_key not in self.pairs.keys():  # don't add if already exists
-                self.pairs[ccy_key] = val
+                self.pairs[ccy_key] = int(val * 100000) / 100000
                 if ccy_key[0:3] == 'JPY':
                     self.pairs[ccy_key[-3:] + ccy_key[:3]] = round(val ** -1, 2)
                 elif ccy_key[-3:] == 'JPY':
                     self.pairs[ccy_key[-3:] + ccy_key[:3]] = round(val ** -1, 5)
                 else:
-                    self.pairs[ccy_key[-3:] + ccy_key[:3]] = int(val ** -1 * 10000) / 10000  # round(vals ** -1, 4) This is not precise, but replicates the article
+                    self.pairs[ccy_key[-3:] + ccy_key[:3]] = int(val ** -1 * 100000) / 100000  # round(vals ** -1, 4) This is not precise, but replicates the article
 
     def delete_pair(self, pair):
         """
@@ -46,9 +46,9 @@ class ArbFinder:
         if pair not in self.pairs.keys():
             print('Pair is not present in the FX-pairs')
         else:
-            self.pairs[pair] = value
-            self.pairs[pair[-3:] + pair[:3]] = round(value ** -1, 4)  # missing convention/nr of decimals check
-            print(pair + ' and its inverse updated')
+            self.pairs[pair] = int(value * 100000) / 100000
+            self.pairs[pair[-3:] + pair[:3]] = int(value ** -1 * 100000) / 100000  # missing convention/nr of decimals check
+            print(pair + ' and its inverse updated.\n')
 
             # delete constraints --> create_arb_model need to be rerun. Can't rerun solver without redefining the "prob"
             self.prob.constraints.clear()  # , self.x.clear()
@@ -95,7 +95,9 @@ class ArbFinder:
         """
         could be written to file or directed to a publisher
         """
-        self.prob.solve()
+        start = time.time()
+        self.prob.solve(PULP_CBC_CMD(msg=False))
+        end = time.time()
         # print(list_solvers(onlyAvailable=True))  # list available solvers
         print('Results:')
         # print(value(x))
@@ -107,4 +109,4 @@ class ArbFinder:
                     print(f"{var.name}: {var.value()}")
         else:
             print('No arbitrage found')
-        print(f"solved using solver {self.prob.solver}\n\n")
+        print(f"It took {round(end - start, 6)} seconds using solver {self.prob.solver}. \n\n")
