@@ -23,6 +23,54 @@ Mathematically, this may be presented as an optimization problem by maximizing a
 
 where DE describes the amount of USD to be converted to EUR, DN dollar amount to be converted to NOK and so on. All the FX-pairs are the current market prices. Also, note that EURUSD = USDEUR^-1. The constrains represent cash flows in and out of each currency. For all non-target currencies they should net to zero as one is not aiming for accumulation of those currencies. For example, second row describes EUR cash flows from EURs to other currencies (ED + EN) which should equal all the cash flows to EURs. Only difference to the target currency D (USD) cash flows is that it has an addtional term for the 1 USD initially available and final USD arbitrage amount D. One should limit amount of target profits as well with the max_amount constraint.
 
+Please find python-file main.py as an example run. One need to define FX-rates in a dictionary and pass it on  to ArbFinder class.
+
+```
+    rates = dict()
+    rates["USDNOK"] = 9.8
+    rates["EURUSD"] = 1.06
+    rates["EURNOK"] = 10.388
+```
+
+It initializes FX-rates and their inverse values in a dictionary. Next step is to define the linear programming model in which the optimization task is being created with three input parameters: Target ccy, FX-pairs class and maximum target amount.
+
+```
+    # Create the model
+    fx.create_arb_model('USD', fx.pairs, 1000)
+```
+
+Finally, one can solve the model by running
+
+```
+    # print the results
+    fx.get_results()
+```
+giving no arbitrage opportunities.
+
+When new FX-prices get updated from your desired data feed, one should update relevant values and rerun the solver. The following illustrates that with prices as in the description above generating an arbitrage opportunity.
+
+```
+    # update a fx-rate and rerun
+    fx.update('EURNOK', 10.388 * 1.01)
+    model = fx.create_arb_model('USD', fx.pairs, 1000)
+    fx.get_results()
+```
+
+Resulting in the following output:
+
+EURNOK and its inverse updated.
+
+```
+Results:
+status: 1, Optimal
+objective: 1000.0
+EURNOK: 94383.839
+NOKUSD: 990263.91
+USD: 1000.0
+USDEUR: 100047.53
+It took 0.011001 seconds using solver <pulp.apis.coin_api.PULP_CBC_CMD object at 0x0000018F9D0C2A30>.
+```
+
 There are several aspects to consider for a production application such as latency and liquidity issues, transaction costs, usage of bid-offer prices and so on. The project is merely describing what is the problem setup and how it can be solved using optimization methods.
 
 ## Setup:
