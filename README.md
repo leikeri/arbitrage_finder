@@ -30,6 +30,7 @@ Please find python-file main.py as an example run. One need to define FX-rates i
     rates["USDNOK"] = 9.8
     rates["EURUSD"] = 1.06
     rates["EURNOK"] = 10.388
+    fx = ArbFinder('initial_test', fx_rates=rates)
 ```
 
 It initializes FX-rates and their inverse values in a dictionary. Next step is to define the linear programming model in which the optimization task is being created with three input parameters: Target ccy, FX-pairs class and maximum target amount.
